@@ -25,6 +25,10 @@ class AppSettings @Inject constructor(
         const val VIDEO_PLAYER = "VIDEO_PLAYER"
         const val LAST_UPDATED = "LAST_UPDATED"
         const val ENABLE_ADS = "ENABLE_ADS"
+        const val IMAGE_DURATION_SECONDS = "IMAGE_DURATION_SECONDS"
+        const val UPDATE_INTERVAL_SECONDS = "UPDATE_INTERVAL_SECONDS"
+        const val DEFAULT_IMAGE_DURATION_SECONDS = 10
+        const val DEFAULT_UPDATE_INTERVAL_SECONDS = 60
     }
 
     private val sessionStore = appContext.dataStore
@@ -100,6 +104,38 @@ class AppSettings @Inject constructor(
         val enable = preferences[dataStoreKey] ?: return true
         Log.d(TAG, "fetchEnableAds: $enable")
         return enable.toBoolean()
+    }
+
+    suspend fun saveImageDurationSeconds(seconds: Int) {
+        val dataStoreKey = stringPreferencesKey(IMAGE_DURATION_SECONDS)
+        sessionStore.edit { settings ->
+            settings[dataStoreKey] = seconds.toString()
+        }
+        Log.d(TAG, "saveImageDurationSeconds: $seconds")
+    }
+
+    suspend fun fetchImageDurationSeconds(): Int {
+        val dataStoreKey = stringPreferencesKey(IMAGE_DURATION_SECONDS)
+        val preferences = sessionStore.data.first()
+        val seconds = preferences[dataStoreKey]?.toIntOrNull() ?: DEFAULT_IMAGE_DURATION_SECONDS
+        Log.d(TAG, "fetchImageDurationSeconds: $seconds")
+        return seconds
+    }
+
+    suspend fun saveUpdateIntervalSeconds(seconds: Int) {
+        val dataStoreKey = stringPreferencesKey(UPDATE_INTERVAL_SECONDS)
+        sessionStore.edit { settings ->
+            settings[dataStoreKey] = seconds.toString()
+        }
+        Log.d(TAG, "saveUpdateIntervalSeconds: $seconds")
+    }
+
+    suspend fun fetchUpdateIntervalSeconds(): Int {
+        val dataStoreKey = stringPreferencesKey(UPDATE_INTERVAL_SECONDS)
+        val preferences = sessionStore.data.first()
+        val seconds = preferences[dataStoreKey]?.toIntOrNull() ?: DEFAULT_UPDATE_INTERVAL_SECONDS
+        Log.d(TAG, "fetchUpdateIntervalSeconds: $seconds")
+        return seconds
     }
 }
 

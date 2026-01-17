@@ -18,11 +18,23 @@ data class File(
     val size: Long?,
     val iconLink: String,
     val mimeType: String,
+    val modifiedTime: String? = null,
+    val md5Checksum: String? = null,
     val shortcutDetails: ShortcutDetails = ShortcutDetails(),
     @Json(name = "starred")
     val starred: Starred
 ) {
-    fun toDriveFile() = DriveFile(id, name, size, mimeType, iconLink, shortcutDetails, starred)
+    fun toDriveFile() = DriveFile(
+        id = id,
+        name = name,
+        size = size,
+        mimeType = mimeType,
+        iconLink = iconLink,
+        shortcutDetails = shortcutDetails,
+        starred = starred,
+        modifiedTime = modifiedTime,
+        md5Checksum = md5Checksum
+    )
 }
 
 @Keep

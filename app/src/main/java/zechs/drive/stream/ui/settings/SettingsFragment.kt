@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import androidx.core.view.isInvisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -14,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.transition.TransitionManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 import zechs.drive.stream.R
 import zechs.drive.stream.databinding.FragmentSettingsBinding
@@ -56,6 +59,8 @@ class SettingsFragment : BaseFragment() {
 
         setupThemeMenu()
         setupDefaultPlayerMenu()
+        setupImageDurationSetting()
+        setupUpdateIntervalSetting()
         setupCheckForUpdates()
         setupAdsSetting()
     }
@@ -107,6 +112,54 @@ class SettingsFragment : BaseFragment() {
                     dialog.dismiss()
                 }
             }.also { it.show() }
+        }
+    }
+
+    private fun setupImageDurationSetting() {
+        binding.settingImageDuration.setOnClickListener {
+            showNumberSettingDialog(
+                title = getString(R.string.image_duration),
+                currentValue = mainViewModel.imageDurationSeconds.value,
+                minValue = 1,
+                maxValue = 3600
+            ) { seconds ->
+                mainViewModel.setImageDurationSeconds(seconds)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                mainViewModel.imageDurationSeconds.collect { seconds ->
+                    binding.imageDurationValue.text = getString(
+                        R.string.seconds_format,
+                        seconds
+                    )
+                }
+            }
+        }
+    }
+
+    private fun setupUpdateIntervalSetting() {
+        binding.settingUpdateInterval.setOnClickListener {
+            showNumberSettingDialog(
+                title = getString(R.string.update_check_interval),
+                currentValue = mainViewModel.updateIntervalSeconds.value,
+                minValue = 10,
+                maxValue = 86400
+            ) { seconds ->
+                mainViewModel.setUpdateIntervalSeconds(seconds)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                mainViewModel.updateIntervalSeconds.collect { seconds ->
+                    binding.updateIntervalValue.text = getString(
+                        R.string.seconds_format,
+                        seconds
+                    )
+                }
+            }
         }
     }
 
@@ -182,6 +235,49 @@ class SettingsFragment : BaseFragment() {
                 showSnackBar(getString(R.string.thank_you_for_supporting_the_app))
             }
         }
+    }
+
+    private fun showNumberSettingDialog(
+        title: String,
+        currentValue: Int,
+        minValue: Int,
+        maxValue: Int,
+        onSave: (Int) -> Unit
+    ) {
+        val inputLayout = TextInputLayout(requireContext())
+        val input = EditText(requireContext()).apply {
+            inputType = EditorInfo.TYPE_CLASS_NUMBER
+            setText(currentValue.toString())
+        }
+        inputLayout.addView(input)
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(title)
+            .setView(inputLayout)
+            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
+                val value = input.text?.toString()?.toIntOrNull()
+                if (value == null) {
+                    showSnackBar(getString(R.string.invalid_value))
+                    return@setPositiveButton
+                }
+                val clamped = value.coerceIn(minValue, maxValue)
+                if (clamped != value) {
+                    showSnackBar(
+                        getString(
+                            R.string.setting_value_clamped,
+                            clamped,
+                            minValue,
+                            maxValue
+                        )
+                    )
+                }
+                onSave(clamped)
+                dialog.dismiss()
+            }
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     private fun showSnackBar(message: String) {

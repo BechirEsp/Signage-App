@@ -21,6 +21,8 @@ data class Drive(
         mimeType = kind,
         iconLink = null,
         shortcutDetails = ShortcutDetails(),
-        starred = Starred.UNKNOWN
+        starred = Starred.UNKNOWN,
+        modifiedTime = null,
+        md5Checksum = null
     )
 }

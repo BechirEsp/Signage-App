@@ -58,6 +58,17 @@ download the file in order to stream it.
     - List files
     - Download files
 
+## Signage folder playback and caching
+
+When you long-press a Drive folder, the app enters signage playback mode. The folder is synced to a
+local cache under `cache/cloud/drive/<folderId>` along with a `manifest.json` describing the cached
+items (ID, name, size, modifiedTime, checksum, local path). On startup and at a configurable
+interval, the app re-lists the folder and only downloads items that are new or changed (based on
+modified time, size, and checksum) while removing local files that were deleted in Drive.
+
+The signage player builds its playlist from the local cache, loops forever, and keeps playing even
+while sync updates occur.
+
 
 Thanks to [mpv-android](https://github.com/mpv-android) for buildscripts to compile `libMPV`
 and `MPVLib` `MPVView`.

@@ -21,7 +21,7 @@ interface DriveApi {
         @Query("pageToken")
         pageToken: String? = null,
         @Query("fields")
-        fields: String = "nextPageToken, files(id, name, size, mimeType, iconLink, shortcutDetails, starred)",
+        fields: String = "nextPageToken, files(id, name, size, mimeType, iconLink, shortcutDetails, starred, modifiedTime, md5Checksum)",
         @Query("orderBy")
         orderBy: String = "folder, name",
         @Query("q")

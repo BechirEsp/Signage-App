@@ -11,11 +11,15 @@ data class DriveFile(
     val mimeType: String,
     val iconLink: String?,
     val shortcutDetails: ShortcutDetails,
-    val starred: Starred
+    val starred: Starred,
+    val modifiedTime: String?,
+    val md5Checksum: String?
 ) {
     val humanSize = size?.let { Converter.toHumanSize(it) }
 
     val isVideoFile = mimeType.startsWith("video/")
+
+    val isImageFile = mimeType.startsWith("image/")
 
     val isFolder = mimeType == "application/vnd.google-apps.folder"
             || mimeType == "drive#drive"

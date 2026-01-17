@@ -37,6 +37,7 @@ import zechs.drive.stream.ui.files.adapter.FilesDataModel
 import zechs.drive.stream.ui.main.MainViewModel
 import zechs.drive.stream.ui.player.PlayerActivity
 import zechs.drive.stream.ui.player2.MPVActivity
+import zechs.drive.stream.ui.signage.SignageActivity
 import zechs.drive.stream.utils.VideoPlayer
 import zechs.drive.stream.utils.state.Resource
 
@@ -211,7 +212,13 @@ class FilesFragment : BaseFragment() {
 
     private fun handleFileOnLongPress(file: DriveFile) {
         Log.d(TAG, file.toString())
-        if (file.isVideoFile) {
+        if (file.isFolder && !file.isShortcut) {
+            launchSignage(file.id, file.name)
+        } else if (file.isShortcutFolder) {
+            file.shortcutDetails.targetId?.let {
+                launchSignage(it, file.name)
+            }
+        } else if (file.isVideoFile) {
             launchVideoPlayer(file)
         } else if (file.isShortcut) {
             if (file.isShortcutVideo) {
@@ -288,6 +295,16 @@ class FilesFragment : BaseFragment() {
             putExtra("fileId", fileToken.fileId)
             putExtra("title", fileToken.fileName)
             putExtra("accessToken", fileToken.accessToken)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }.also { startActivity(it) }
+    }
+
+    private fun launchSignage(folderId: String, folderName: String) {
+        Intent(
+            context, SignageActivity::class.java
+        ).apply {
+            putExtra(SignageActivity.EXTRA_FOLDER_ID, folderId)
+            putExtra(SignageActivity.EXTRA_FOLDER_NAME, folderName)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }.also { startActivity(it) }
     }

@@ -55,10 +55,18 @@ class MainViewModel @Inject constructor(
     var adsEnabled = false
         private set
 
+    private val _imageDurationSeconds = MutableStateFlow(AppSettings.DEFAULT_IMAGE_DURATION_SECONDS)
+    val imageDurationSeconds = _imageDurationSeconds.asStateFlow()
+
+    private val _updateIntervalSeconds = MutableStateFlow(AppSettings.DEFAULT_UPDATE_INTERVAL_SECONDS)
+    val updateIntervalSeconds = _updateIntervalSeconds.asStateFlow()
+
     init {
         viewModelScope.launch {
             getTheme()
             getEnableAds()
+            getImageDurationSeconds()
+            getUpdateIntervalSeconds()
             val status = getLoginStatus()
             if (status) {
                 getPlayer()
@@ -123,6 +131,24 @@ class MainViewModel @Inject constructor(
     fun setEnableAds(enable: Boolean) = viewModelScope.launch {
         appSettings.saveEnableAds(enable)
         getEnableAds()
+    }
+
+    private suspend fun getImageDurationSeconds() {
+        _imageDurationSeconds.value = appSettings.fetchImageDurationSeconds()
+    }
+
+    fun setImageDurationSeconds(seconds: Int) = viewModelScope.launch {
+        appSettings.saveImageDurationSeconds(seconds)
+        getImageDurationSeconds()
+    }
+
+    private suspend fun getUpdateIntervalSeconds() {
+        _updateIntervalSeconds.value = appSettings.fetchUpdateIntervalSeconds()
+    }
+
+    fun setUpdateIntervalSeconds(seconds: Int) = viewModelScope.launch {
+        appSettings.saveUpdateIntervalSeconds(seconds)
+        getUpdateIntervalSeconds()
     }
 
 }
